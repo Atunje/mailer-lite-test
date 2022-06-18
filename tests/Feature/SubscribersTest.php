@@ -42,7 +42,7 @@ class SubscribersTest extends TestCase
         $response->assertStatus(200);
 
         $result = $this->get_request_response($response);
-        $subscribers = $result['data']['subscribers'];
+        $subscribers = $result['data']['pagination']['total'];
 
         $this->assertEquals(count($subscribers), $count);
     }
@@ -124,5 +124,20 @@ class SubscribersTest extends TestCase
     }
 
 
-    
+    public function test_the_api_can_search_for_subscribers_by_search_field_and_state() 
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/api/subscribers', [
+            'search' => 'ade',
+            'state' => 'active'
+        ])->assertJson([
+            'status' => true,
+        ])->assertJsonStructure([
+            "data" => [
+                'subscribers'
+            ]
+        ]);
+
+        $response->assertStatus(200);
+    }
 }

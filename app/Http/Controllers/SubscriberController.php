@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Subscriber;
+use App\Http\Services\SubscriberService;
 use Illuminate\Validation\Rule;
 
 class SubscriberController extends Controller
 {
-    public function show() {
-        $data = ['subscribers'=>Subscriber::all()];
+    public function show(Request $request, SubscriberService $subscriberService) {
+        $data = $subscriberService->findAll($request);
         return response()->json(['message' => 'Subscribers were successfully retrieved.', 'status'=>true, 'data'=>$data]);
     }
 
