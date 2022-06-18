@@ -8,17 +8,17 @@
 
     class SubscriberService {
 
-        public function findAll(Request $request) {
-
+        public function findAll(Request $request): array 
+        {
             $qry = Subscriber::select('email', 'name', 'state', 'created_at');
+
+            if($request->has('state')) {
+                $qry->where('state', $request->state);
+            }
 
             if($request->has('search')) {
                 $qry->where('name', 'like', '%'.$request->search.'%');
                 $qry->orWhere('email', 'like', '%'.$request->search.'%');
-            }
-
-            if($request->has('state')) {
-                $qry->where('state', $request->state);
             }
 
             $records = $qry->paginate($request->per_page ?? 50);
@@ -28,8 +28,8 @@
 
 
 
-        private static function extractPaginatedRecords(?LengthAwarePaginator $records): array {
-
+        private static function extractPaginatedRecords(?LengthAwarePaginator $records): array 
+        {
             $data = [];
 
             if($records != null) {
@@ -47,7 +47,6 @@
             }
 
             return $data;
-
         }
 
     }

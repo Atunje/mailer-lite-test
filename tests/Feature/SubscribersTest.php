@@ -35,16 +35,17 @@ class SubscribersTest extends TestCase
                 ])
                 ->assertJsonStructure([
                     "data" => [
-                        'subscribers'
+                        'subscribers',
+                        'pagination'
                     ]
                 ]);
 
         $response->assertStatus(200);
 
         $result = $this->get_request_response($response);
-        $subscribers = $result['data']['pagination']['total'];
+        $total = $result['data']['pagination']['total'];
 
-        $this->assertEquals(count($subscribers), $count);
+        $this->assertEquals($total, $count);
     }
 
     public function test_the_api_can_create_new_subscriber() 
@@ -126,18 +127,31 @@ class SubscribersTest extends TestCase
 
     public function test_the_api_can_search_for_subscribers_by_search_field_and_state() 
     {
+        $srch_param = "a";
+        $state = 'junk';
+
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/subscribers', [
-            'search' => 'ade',
-            'state' => 'active'
+            'search' => $srch_param,
+            'state' => $state
         ])->assertJson([
             'status' => true,
         ])->assertJsonStructure([
             "data" => [
-                'subscribers'
+                'subscribers',
+                'pagination'
             ]
         ]);
 
         $response->assertStatus(200);
+
+        $count = Subscriber::where('state', $state)
+                            ->where('name', 'like', '%'.$srch_param.'%')
+                            ->orWhere('email','like', '%'.$srch_param.'%')->count();
+
+        $result = $this->get_request_response($response);
+        $total = $result['data']['pagination']['total'];
+
+        $this->assertEquals($total, $count);
     }
 }
