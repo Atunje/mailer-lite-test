@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FieldController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,8 +26,13 @@ Route::group(['prefix'=>'auth'], function(){
     Route::middleware('auth:sanctum')->get('logout', [AuthController::class, 'logout']);
 });
 
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $data = ['user'=>$request->user()];
     return response()->json(['data' => $data, 'message' => 'User profile successfully retrieved', 'status'=> true]);
+});
+
+Route::group(['prefix'=>'fields', 'middleware' => ['auth:sanctum']], function(){
+    Route::get('/', [FieldController::class, 'show']);
+    Route::post('create', [FieldController::class, 'create']);
+    Route::post('/{field}/update', [FieldController::class, 'update']);
 });
