@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\SubscriberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,4 +36,11 @@ Route::group(['prefix'=>'fields', 'middleware' => ['auth:sanctum']], function(){
     Route::get('/', [FieldController::class, 'show']);
     Route::post('create', [FieldController::class, 'create']);
     Route::post('/{field}/update', [FieldController::class, 'update']);
+});
+
+Route::group(['prefix'=>'subscribers', 'middleware' => ['auth:sanctum']], function(){
+    Route::get('/', [SubscriberController::class, 'show']);
+    Route::post('create', [SubscriberController::class, 'create']);
+    Route::put('/{subscriber}/update', [SubscriberController::class, 'update']);
+    Route::delete('/{subscriber}/delete', [SubscriberController::class, 'delete']);
 });
