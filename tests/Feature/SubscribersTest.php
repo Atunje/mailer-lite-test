@@ -89,8 +89,6 @@ class SubscribersTest extends TestCase
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/subscribers/create', $subscriber);
 
-        echo json_encode($response);
-
         $response->assertStatus(201)->assertJson([
             'status' => true,
         ]);
@@ -113,7 +111,7 @@ class SubscribersTest extends TestCase
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/subscribers/create', $subscriber->toArray());
 
-        $response->assertStatus(400)->assertJson([
+        $response->assertStatus(422)->assertJson([
             'status' => false,
         ]);
 

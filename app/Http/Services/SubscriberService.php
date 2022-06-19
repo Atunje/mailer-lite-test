@@ -13,6 +13,16 @@
 
         public function findAll(Request $request): array 
         {
+            $records = $this->getSubscribers($request);
+
+            $this->attachFieldValuesToSubscribers($records);
+
+            return $request->per_page == -1 ? $records : $this->simplifyPagination($records);
+        }
+
+
+        private function getSubscribers(Request $request): LengthAwarePaginator|Collection {
+
             $qry = Subscriber::select('id', 'email', 'name', 'state', 'created_at')->with('fieldValues');
 
             if($request->has('state')) {
@@ -24,45 +34,36 @@
                 $qry->orWhere('email', 'like', '%'.$request->search.'%');
             }
 
-            $records = $qry->orderBy('id', 'desc')->paginate($request->per_page ?? 50);
+            $qry->orderBy('id', 'desc');
 
-            $this->attachFieldValues($records);
+            return $request->per_page == -1 ? $qry->get() : $qry->paginate($request->per_page ?? 50);
 
-            return $this->extractPaginatedRecords($records);
-        }
-
-
-        public function findOne(int $id): Subscriber 
-        {
-            $subscriber = Subscriber::find($id);
-
-            if($subscriber != null) {
-                $this->getFieldValues($subscriber, Field::all());
-            }
-
-            return $subscriber;
         }
 
 
         /**
-         * Get the fields and attach it to each record
+         * Attach Field Values to Subscribers
+         * 
+         * Attach fields and available values to the subscribers supplied
          */
-        private function attachFieldValues($records) {
+        private function attachFieldValuesToSubscribers(Collection|LengthAwarePaginator $subscribers) {
 
             //get the fields
             $fields = Field::all();
 
-            foreach($records as $subscriber) {
+            foreach($subscribers as $subscriber) {
                 
-                $this->getFieldValues($subscriber, $fields);
+                $this->attachFieldValues($subscriber, $fields);
 
             };
 
         }
 
 
-        private function getFieldValues(Subscriber $subscriber, Collection $fields)
+        private function attachFieldValues(Subscriber $subscriber, ?Collection $fields = null)
         {
+            $fields = $fields == null ? Field::all() : $fields;
+
             //loop thru the fields and attach to the subscriber record
             foreach($fields as $field) {
 
@@ -82,7 +83,10 @@
         }
 
 
-        private function getFieldValue($fieldValues, $field)
+        /**
+         * Get the field value for the given field
+         */
+        private function getFieldValue(Collection $fieldValues, Field $field): ?FieldValue
         {
             foreach($fieldValues as $fieldValue) {
                 if($fieldValue->field_id == $field->id) {
@@ -94,8 +98,10 @@
         }
 
 
-
-        private static function extractPaginatedRecords(?LengthAwarePaginator $records): array 
+        /**
+         * Separate subscribers from pagination information
+         */
+        private static function simplifyPagination(?LengthAwarePaginator $records): array 
         {
             $data = [];
 
@@ -117,14 +123,34 @@
         }
 
 
-        
+        /**
+         * Find One
+         * 
+         * Get subscriber 
+         * Attach all fields and available values 
+         */
+        public function findOne(int $id): ?Subscriber 
+        {
+            $subscriber = Subscriber::find($id);
+
+            if($subscriber != null) {
+                $this->attachFieldValues($subscriber, Field::all());
+            }
+
+            return $subscriber;
+        }
+
+
+        /**
+         * Save
+         * 
+         * Create or Update subscriber
+         * Also creates field values
+         */
         public function save(array $inputs, ?Subscriber $subscriber = null) 
         {
-            if($subscriber == null) {
-                $subscriber = Subscriber::create($inputs);
-            } else {
-                $subscriber->update($inputs);
-            }
+            //save the subscriber
+            $subscriber = $this->saveSubscriber($inputs, $subscriber);
 
             //re-hydrate the subscriber to fill in all fields from the db
             $subscriber->refresh();
@@ -132,14 +158,7 @@
             if($subscriber != null) {
 
                 foreach($inputs as $field_name => $value) {
-
-                    //if subscriber does not have attribute field_name, save the input as a fieldvalue
-                    if(!isset($subscriber->$field_name)) {
-
-                        $this->saveField($subscriber, $field_name, $value);
-
-                    }
-                    
+                    $this->saveField($subscriber, $field_name, $value);
                 }
 
                 return true;
@@ -149,12 +168,35 @@
         }
 
 
-        private function saveField(Subscriber $subscriber, string $title, string $value) 
+        /**
+         * Save only the subscriber without field values
+         * 
+         * Creates new one if subscriber specified is null
+         * Updates if the subscriber already exists
+         */
+        private function saveSubscriber(array $inputs, ?Subscriber $subscriber) {
+            
+            if($subscriber == null) {
+                $subscriber = Subscriber::create($inputs);
+            } else {
+                $subscriber->update($inputs);
+            }
+
+            return $subscriber;
+
+        }
+
+
+        /**
+         * Save fieldvalue for the given subscriber
+         */
+        private function saveField(Subscriber $subscriber, string $field_name, string $value) 
         {
             //get the field
-            $field = Field::where('title', $title)->first();
+            $field = Field::where('title', $field_name)->first();
 
-            if($field!=null) {
+            //proceed if the attribute does not exist on the subscriber and the field exists
+            if(!isset($subscriber->$field_name) && $field!=null) {
 
                 $params = ['field_id' => $field->id, 'subscriber_id' => $subscriber->id];
 
@@ -166,6 +208,16 @@
                 $field_value->value = $value;
                 $field_value->save();
             }
+        }
+
+
+        /**
+         * Delete
+         * 
+         * Deletes a subscriber
+         */
+        public function delete(Subscriber $subscriber): bool {
+            return $subscriber->delete();
         }
 
     }
