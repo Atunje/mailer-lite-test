@@ -66,7 +66,7 @@ class FieldsTest extends TestCase
             'type' => 'coordinate'
         ]);
 
-        $response->assertStatus(400)->assertJson([
+        $response->assertStatus(422)->assertJson([
             'status' => false,
         ]);
 
