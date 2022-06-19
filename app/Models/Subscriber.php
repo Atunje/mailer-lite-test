@@ -21,4 +21,11 @@ class Subscriber extends Model
         'state',
     ];
 
+
+    public function fieldValues() 
+    {
+        return $this->hasMany(FieldValue::class);
+    }
+
+
 }

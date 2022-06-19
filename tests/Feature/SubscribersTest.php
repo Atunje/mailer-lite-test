@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Subscriber;
+use App\Models\Field;
 
 class SubscribersTest extends TestCase
 {
@@ -48,12 +49,47 @@ class SubscribersTest extends TestCase
         $this->assertEquals($total, $count);
     }
 
+    private function createFields() 
+    {
+        //create different types of field
+        Field::factory()->create();
+        Field::factory()->date()->create();
+        Field::factory()->number()->create();
+        Field::factory()->boolean()->create();
+    }
+
     public function test_the_api_can_create_new_subscriber() 
     {
-        $subscriber = Subscriber::factory()->make();
+        $subscriber = Subscriber::factory()->make()->toArray();
+
+        //create new fields
+        $this->createFields();
+
+        $fields = Field::all();
+
+        foreach($fields as $field) {
+
+            $value = $this->faker->text();
+            
+            switch($field->type) {
+                case 'number':
+                    $value = 4893;
+                    break;
+                case 'boolean':
+                    $value = false;
+                    break;
+                case 'date':
+                    $value = $this->faker->date();
+                    break;
+            }
+            
+            $subscriber[$field->title] = $value;
+        }
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->post('/api/subscribers/create', $subscriber->toArray());
+        $response = $this->actingAs($user)->post('/api/subscribers/create', $subscriber);
+
+        echo json_encode($response);
 
         $response->assertStatus(201)->assertJson([
             'status' => true,
@@ -61,7 +97,7 @@ class SubscribersTest extends TestCase
 
         $this->assertNotNull(
             Subscriber::where([
-                'email' =>$subscriber->email
+                'email' =>$subscriber['email']
             ])->get()
         );
                 

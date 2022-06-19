@@ -5,30 +5,51 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Subscriber;
+use App\Models\Field;
 use App\Http\Services\SubscriberService;
 use Illuminate\Validation\Rule;
 
 class SubscriberController extends Controller
 {
-    public function show(Request $request, SubscriberService $subscriberService) {
-        $data = $subscriberService->findAll($request);
+
+    public function __construct(private readonly SubscriberService $subscriberService) {}
+
+
+    public function show(Request $request) {
+        $data = $this->subscriberService->findAll($request);
+        return response()->json(['message' => 'Subscribers were successfully retrieved.', 'status'=>true, 'data'=>$data]);
+    }
+
+
+    public function view(int $id) {
+        $data = $this->subscriberService->findOne($id);
         return response()->json(['message' => 'Subscribers were successfully retrieved.', 'status'=>true, 'data'=>$data]);
     }
 
     public function create(Request $request) {
 
-        $validator = Validator::make($request->all(), [
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:subscribers',
             'state' => 'required|in:active,unsubscribed,junk,bounced,unconfirmed',
-        ]);
+        ];
+
+        //get the extra fields 
+        $fields = Field::all();
+
+        foreach($fields as $field) {
+            $type = ($field->type == 'number') ? 'numeric' : $field->type;
+            $rules[$field->title] = 'nullable|'.$type;
+        }
+
+        $validator = Validator::make($request->all(), $rules);
  
         if ($validator->fails()) {
             return response()->json(['message' => join(" ", $validator->errors()->all()), 'status' => false], 400);
         } else {
 
             $inputs = $validator->validated();
-            if(Subscriber::create($inputs)) {
+            if($this->subscriberService->save($inputs)) {
                 return response()->json(['message' => 'New subscriber was successfully created', 'status' => true], 201);
             }
 
@@ -55,7 +76,7 @@ class SubscriberController extends Controller
         } else {
 
             $inputs = $validator->validated();
-            if($subscriber->update($inputs)) {
+            if($this->subscriberService->save($inputs, $subscriber)) {
                 return response()->json(['message' => 'Subscriber was successfully updated', 'status' => true], 200);
             }
 
