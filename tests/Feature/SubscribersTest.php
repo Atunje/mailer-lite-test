@@ -180,8 +180,11 @@ class SubscribersTest extends TestCase
         $response->assertStatus(200);
 
         $count = Subscriber::where('state', $state)
+                            ->join('field_values', 'field_values.subscriber_id', '=', 'subscribers.id')
                             ->where('name', 'like', '%'.$srch_param.'%')
-                            ->orWhere('email','like', '%'.$srch_param.'%')->count();
+                            ->orWhere('email','like', '%'.$srch_param.'%')
+                            ->orWhere('field_values.value', 'like', '%'.$srch_param.'%')
+                            ->count();
 
         $result = $this->get_request_response($response);
         $total = $result['data']['pagination']['total'];

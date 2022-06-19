@@ -11,6 +11,11 @@ class AuthController extends Controller
 
     public function __construct(private readonly UserService $userService){}
 
+    /**
+     * Registers new user
+     * 
+     * @param RegisterRequest $request
+     */
     public function register(RegisterRequest $request) 
     {
         $inputs = $request->validated();

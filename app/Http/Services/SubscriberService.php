@@ -30,8 +30,11 @@
             }
 
             if($request->has('search')) {
-                $qry->where('name', 'like', '%'.$request->search.'%');
-                $qry->orWhere('email', 'like', '%'.$request->search.'%');
+                $qry->join('field_values', 'field_values.subscriber_id', '=', 'subscribers.id')
+                    ->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    //check field values too
+                    ->orWhere('field_values.value', 'like', '%'.$request->search.'%');
             }
 
             $qry->orderBy('id', 'desc');
