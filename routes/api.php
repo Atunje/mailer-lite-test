@@ -45,4 +45,5 @@ Route::group(['prefix'=>'subscribers', 'middleware' => ['auth:sanctum']], functi
     Route::post('create', [SubscriberController::class, 'create']);
     Route::put('/{subscriber}/update', [SubscriberController::class, 'update']);
     Route::delete('/{subscriber}/delete', [SubscriberController::class, 'delete']);
+    Route::patch('/change-state', [SubscriberController::class, 'change_state']);
 });

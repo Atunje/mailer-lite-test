@@ -8,6 +8,7 @@
     use Illuminate\Http\Request;
     use Illuminate\Pagination\LengthAwarePaginator;
     use Illuminate\Support\Collection;
+    use Illuminate\Support\Facades\DB;
 
     class SubscriberService {
 
@@ -152,22 +153,27 @@
          */
         public function save(array $inputs, ?Subscriber $subscriber = null) 
         {
-            //save the subscriber
-            $subscriber = $this->saveSubscriber($inputs, $subscriber);
+            try {
 
-            //re-hydrate the subscriber to fill in all fields from the db
-            $subscriber->refresh();
+                DB::transaction(function () use ($subscriber, $inputs) {
+                    //save the subscriber
+                    $subscriber = $this->saveSubscriber($inputs, $subscriber);
 
-            if($subscriber != null) {
+                    //re-hydrate the subscriber to fill in all fields from the db
+                    $subscriber->refresh();
 
-                foreach($inputs as $field_name => $value) {
-                    $this->saveField($subscriber, $field_name, $value);
-                }
+                    foreach($inputs as $field_name => $value) {
+                        $this->saveField($subscriber, $field_name, $value);
+                    }
+                });
 
                 return true;
-            }
 
-            return false;
+            } catch(Exception $e) {
+
+                return false;
+
+            }
         }
 
 
@@ -177,8 +183,8 @@
          * Creates new one if subscriber specified is null
          * Updates if the subscriber already exists
          */
-        private function saveSubscriber(array $inputs, ?Subscriber $subscriber) {
-            
+        private function saveSubscriber(array $inputs, ?Subscriber $subscriber) 
+        {
             if($subscriber == null) {
                 $subscriber = Subscriber::create($inputs);
             } else {
@@ -186,7 +192,6 @@
             }
 
             return $subscriber;
-
         }
 
 
@@ -219,8 +224,40 @@
          * 
          * Deletes a subscriber
          */
-        public function delete(Subscriber $subscriber): bool {
+        public function delete(Subscriber $subscriber): bool 
+        {
             return $subscriber->delete();
+        }
+
+
+        public function change_state(array $data): bool 
+        {
+
+            $subscribers = explode(',', $data['subscribers']);
+            $new_state = $data['state'];
+
+            try {
+
+                DB::transaction(function () use ($subscribers, $new_state) {
+
+                    foreach($subscribers as $id) {
+                        $subscriber = Subscriber::find($id);
+
+                        if($subscriber != null) {
+                            $subscriber->update(['state'=>$new_state]);
+                        }
+                    }
+
+                });
+
+                return true;
+
+            } catch(Exception $e) {
+
+                return false;
+
+            }
+
         }
 
     }

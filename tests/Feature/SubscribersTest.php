@@ -23,7 +23,7 @@ class SubscribersTest extends TestCase
 
     public function test_the_api_returns_list_of_subscribers()
     {
-        //create a subscriber
+        //create a subscribers
         $this->seed_db_table();
 
         //count the number of subscribers in the db
@@ -190,5 +190,31 @@ class SubscribersTest extends TestCase
         $total = $result['data']['pagination']['total'];
 
         $this->assertEquals($total, $count);
+    }
+
+
+    public function test_the_api_can_change_subscribers_statuses() 
+    {
+        $this->seed_db_table();
+
+        $subscribers = Subscriber::limit(5)->get();
+        $ids = join(',', $subscribers->pluck('id')->toArray());
+        $new_state = 'junk';
+
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+            'subscribers' => $ids,
+            'state' => $new_state
+        ]);
+
+        $response->assertStatus(200)->assertJson([
+            'status' => true,
+        ]);
+
+        $first_subscriber = $subscribers->get(0)->fresh();
+        $last_subscriber = $subscribers->get($subscribers->count()-1)->fresh();
+
+        $this->assertEquals($first_subscriber->state, $new_state);
+        $this->assertEquals($last_subscriber->state, $new_state);
     }
 }

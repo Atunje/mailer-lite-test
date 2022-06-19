@@ -50,7 +50,7 @@ class SubscriberController extends Controller
         if($this->subscriberService->save($inputs, $subscriber)) 
             return $this->successResponseNoData('Subscriber was successfully updated');
             
-        return failureResponse('There was an error updating subscriber!');
+        return $this->failureResponse('There was an error updating subscriber!');
     }
 
 
@@ -59,7 +59,16 @@ class SubscriberController extends Controller
         if($this->subscriberService->delete($subscriber)) 
             return $this->successResponseNoData('Subscriber was successfully deleted');
 
-        return failureResponse('Subscriber could not be deleted');
+        return $this->failureResponse('Subscriber could not be deleted');
+    }
+
+
+    public function change_state(Request $request) {
+
+        if($this->subscriberService->change_state($request->only('subscribers', 'state'))) 
+            return $this->successResponseNoData('Operation successfully');
+        
+        return $this->failureResponse('There was an error updating the state of specified subscribers');
     }
 
 
