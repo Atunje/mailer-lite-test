@@ -39,7 +39,7 @@ class FieldsTest extends TestCase
 
     public function test_the_api_can_create_new_field() {
 
-        $response = $user = User::factory()->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/fields/create', [
             'title' => 'gender',
             'type' => 'string'
@@ -60,7 +60,7 @@ class FieldsTest extends TestCase
 
     public function test_the_api_can_reject_invalid_field_type() {
 
-        $response = $user = User::factory()->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/fields/create', [
             'title' => 'location',
             'type' => 'coordinate'
@@ -81,7 +81,7 @@ class FieldsTest extends TestCase
 
         $field = Field::first();
 
-        $response = $user = User::factory()->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/fields/' . $field->id . '/update', [
             'title' => $field->title,
             'type' => 'boolean'
