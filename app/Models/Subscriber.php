@@ -10,6 +10,8 @@ class Subscriber extends Model
 {
     use HasFactory, SoftDeletes;
 
+    const STATES = ['active','unsubscribed','junk','bounced','unconfirmed'];
+
     /**
      * The attributes that are mass assignable.
      *

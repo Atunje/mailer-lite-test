@@ -230,10 +230,14 @@
         }
 
 
+        /**
+         * Change State
+         * 
+         * Changes the states of all specified subscribers to the specified state
+         */
         public function change_state(array $data): bool 
         {
-
-            $subscribers = explode(',', $data['subscribers']);
+            $subscribers = $data['subscribers'];
             $new_state = $data['state'];
 
             try {

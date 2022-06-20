@@ -193,12 +193,12 @@ class SubscribersTest extends TestCase
     }
 
 
-    public function test_the_api_can_change_subscribers_statuses() 
+    public function test_the_api_can_change_subscribers_states() 
     {
         $this->seed_db_table();
 
         $subscribers = Subscriber::limit(5)->get();
-        $ids = join(',', $subscribers->pluck('id')->toArray());
+        $ids = $subscribers->pluck('id')->toArray();
         $new_state = 'junk';
 
         $user = User::factory()->create();
@@ -217,4 +217,46 @@ class SubscribersTest extends TestCase
         $this->assertEquals($first_subscriber->state, $new_state);
         $this->assertEquals($last_subscriber->state, $new_state);
     }
+
+
+    public function test_the_api_can_catch_invalid_state_when_changing_subscriber_states() 
+    {
+        $this->seed_db_table();
+
+        $subscribers = Subscriber::limit(5)->get();
+        $ids = $subscribers->pluck('id')->toArray();
+        $new_state = 'invalid';
+
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+            'subscribers' => $ids,
+            'state' => $new_state
+        ]);
+
+        $response->assertStatus(422)->assertJson([
+            'status' => false,
+        ]);
+    }
+
+
+    public function test_the_api_can_catch_invalid_subscribers_when_changing_subscriber_states() 
+    {
+        $this->seed_db_table();
+
+        $ids = [3,4,893,3893,'ade'];
+        $new_state = 'junk';
+
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+            'subscribers' => $ids,
+            'state' => $new_state
+        ]);
+
+        echo json_encode($response);
+
+        $response->assertStatus(422)->assertJson([
+            'status' => false,
+        ]);
+    }
+    
 }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Subscriber;
 use App\Http\Services\SubscriberService;
 use App\Http\Requests\SubscriberRequest;
-
+use App\Http\Requests\SubscriberChangeStatusRequest;
 
 class SubscriberController extends Controller
 {
@@ -63,7 +63,9 @@ class SubscriberController extends Controller
     }
 
 
-    public function change_state(Request $request) {
+    public function change_state(SubscriberChangeStatusRequest $request) {
+
+        $inputs = $request->validated();
 
         if($this->subscriberService->change_state($request->only('subscribers', 'state'))) 
             return $this->successResponseNoData('Operation successfully');

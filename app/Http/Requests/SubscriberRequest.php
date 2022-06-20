@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Field;
+use App\Models\Subscriber;
 use Illuminate\Validation\Rule;
 
 class SubscriberRequest extends APIFormRequest
@@ -18,7 +19,7 @@ class SubscriberRequest extends APIFormRequest
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:subscribers',
-            'state' => 'required|in:active,unsubscribed,junk,bounced,unconfirmed',
+            'state' => 'required|in:' . join(",", Subscriber::STATES),
         ];
 
         //validate the inputs of the other fields
