@@ -32,8 +32,8 @@
                 </b-form-group>
                 <b-button class="d-inline" variant="primary" @click='bulkAction'>Bulk Update</b-button>
             </b-col>
-
         </b-row>
+        <small>Click on row to select</small>
         <b-table 
             small 
             responsive 
@@ -71,7 +71,7 @@
 
                 <template #cell(state)="data">
                     <span class="font-weight-bold">
-                        <span v-if="data.item.state=='unsubscribed'" class="text-primary"> Unsubscribed</span>
+                        <span v-if="data.item.state=='unsubscribed'" class="text-dark"> Unsubscribed</span>
                         <span v-if="data.item.state=='active'" class="text-success"><b-icon icon="check2-circle" class="icon" /> Active</span>
                         <span v-if="data.item.state=='junk'" class="text-warning"> Junk</span>
                         <span v-if="data.item.state=='bounced'" class="text-secondary"> Bounced</span>
@@ -80,10 +80,8 @@
                 </template>
 
                 <template #cell(action)="data">
-                    <div align="right">
-                        <b-button variant="info" @click='selectSubscriber(data.item)' v-b-modal.edit-modal>View</b-button>
-                        <b-button variant="warning" @click='deleteSubscriber(data.item)'>Delete</b-button>
-                    </div>
+                    <b-button variant="info" @click='selectSubscriber(data.item)' v-b-modal.edit-modal>View</b-button>
+                    <b-button variant="warning" @click='deleteSubscriber(data.item)'>Delete</b-button>
                 </template>
 
         </b-table>

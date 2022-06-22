@@ -8,12 +8,19 @@ Database - PostgreSQL
 
 ## Instructions
 
- $ composer install
+Create the env file using .env.example as template. Then update it with your database credentials. Then, follow the instructions below to install.
 
- $ php artisan migrate
 
- $ npm install
+    $ composer install
 
- $ npm run dev
+    $ php artisan migrate
 
- $ php artisan serve
+    $ npm install
+
+    $ npm run dev
+
+    $ php artisan serve
+
+Testing
+
+    $ php artisan test
