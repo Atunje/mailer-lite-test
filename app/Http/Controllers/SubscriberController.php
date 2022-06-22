@@ -7,6 +7,7 @@ use App\Models\Subscriber;
 use App\Http\Services\SubscriberService;
 use App\Http\Requests\SubscriberRequest;
 use App\Http\Requests\SubscriberChangeStatusRequest;
+use App\Http\Requests\BulkDeleteRequest;
 
 class SubscriberController extends Controller
 {
@@ -63,14 +64,25 @@ class SubscriberController extends Controller
     }
 
 
-    public function change_state(SubscriberChangeStatusRequest $request) {
+    public function changeState(SubscriberChangeStatusRequest $request) {
 
         $inputs = $request->validated();
 
-        if($this->subscriberService->change_state($request->only('subscribers', 'state'))) 
+        if($this->subscriberService->changeState($request->only('subscribers', 'state'))) 
             return $this->successResponseNoData('Operation successfully');
         
         return $this->failureResponse('There was an error updating the state of specified subscribers');
+    }
+
+
+    public function bulkDelete(BulkDeleteRequest $request) {
+
+        $inputs = $request->validated();
+
+        if($this->subscriberService->deleteSubscribers($request->only('subscribers'))) 
+            return $this->successResponseNoData('Selected subscribers were successfully deleted');
+        
+        return $this->failureResponse('There was an error deleting specified subscribers');
     }
 
 

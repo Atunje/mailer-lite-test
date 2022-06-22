@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@600&family=Josefin+Sans:wght@600&family=Josefin+Slab:wght@500&display=swap');
+body {
+    background-color: #f8f8f8;
+}
+
+.content {
+    padding: 100px 35px 35px 35px;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.login-c {
+    background-color: #FFFFFF80;
+    border: solid 1px #F7F7F7;
+    border-radius: 12px;
+    padding: 40px
+}
+
+.hor-center {
+    margin: 0 auto
+}
+
+.card {
+    box-shadow: 0 4px 24px 0 rgb(34 41 47 / 10%);
+    border: solid 1px #ebebeb;
+}
+
+.card-title {
+    font-size: 20px;
+    font-family: 'Inconsolata', monospace;
+}
+
+.rounded-lg {
+    border-radius: 20px !important
+}
+
+.lg-card {
+    height: 450px;
+}
+
+.card-value {
+    font-size: 45px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.card-value sup {
+    color: rgba(255, 255, 255, .5);
+    font-weight: 500;
+    font-size: 13px;
+    vertical-align: super;
+}
+
+.card-badge {
+    background-color: rgba(243, 232, 249, .2);
+    padding: 6px 11px;
+    font-size: 13px
+}
+
+.w-40 {
+    width: 40%
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline-style: none !important;
+    box-shadow: none !important;
+    border: 1px solid #23103A !important;
+    outline: none !important;
+    color: #23103A !important;
+}
+
+small,
+small a {
+    font-size: 12px !important
+}
+
+.left {
+    float: left
+}
+
+.right {
+    float: right
+}
+
+.vdpr-datepicker input {
+    display: block;
+    width: 100%;
+    padding: 12px 25px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: solid 1px #CCC !important;
+    border-radius: 3px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.vdpr-datepicker input::placeholder {
+    color: rgb(158, 157, 157)
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.5rem;
+    color: #333 !important;
+}
+
+.dropdown-item:hover {
+    background-color: #e5e5ed
+}
+
+.dropdown-menu {
+    padding: 0 !important;
+    margin: 5px 0 !important;
+}
+
+.dropdown-menu>li>a {
+    color: #333 !important;
+    padding: 15px 20px;
+}
+
+.dropdown-menu>li>a:hover {
+    background-color: #e5e5ed;
+}
+
+.dropitem a {
+    padding: 0.6rem 1.5rem !important;
+}
+
+.dropitem a:hover {
+    background-color: #b8e1fc !important;
+    color: #1184f7 !important;
+}
+
+.no-border {
+    border: 0 !important
+}
+
+.badge-light-primary {
+    background-color: rgba(37, 139, 207, .12);
+    color: #0296fa !important;
+    padding: 8px;
+}
+
+.badge-light-success {
+    background-color: rgba(40, 199, 111, .12);
+    color: #28c76f !important;
+    padding: 8px
+}
+
+.badge-light-warning {
+    background-color: rgba(191, 114, 36, .12);
+    color: #bf7224 !important;
+    padding: 8px
+}
+
+.badge-light-danger {
+    background-color: rgba(191, 33, 33, .12);
+    color: #bf2222 !important;
+    padding: 8px
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+    background-color: transparent !important;
+    border: none !important
+}
+
+.nav-tabs .nav-link {
+    border: none;
+}
+
+.nav-link {
+    display: block;
+    padding: 10px 20px;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.nav-item .nav-link.active {
+    border-bottom: solid 5px #0296fa !important;
+    color: #0296fa;
+}
+
+.nav-item .nav-link:hover {
+    color: #0296fa
+}
+
+.b-sidebar {
+    width: 25%;
+}
+
+label {
+    font-size: 13px !important;
+    margin-bottom: 2px !important
+}
+
+.table td {
+    padding: 15px 0 !important
+}
+
+.nav.nav-tabs {
+    background-color: #fff
+}
+
+@media only screen and (max-width: 600px) {
+    .w-40 {
+        width: 90%
+    }
+}

@@ -26,7 +26,7 @@ abstract class APIFormRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'message' => "You have an invalid input!",
+            'message' => "Invalid Input!",
             'data' => $validator->errors()
         ], 422));
     }

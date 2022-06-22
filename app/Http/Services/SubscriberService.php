@@ -24,18 +24,14 @@
 
         private function getSubscribers(Request $request): LengthAwarePaginator|Collection {
 
-            $qry = Subscriber::select('id', 'email', 'name', 'state', 'created_at')->with('fieldValues');
+            $qry = Subscriber::select('id', 'email', 'name', 'state', 'created_at')->with('fieldValues')->distinct();
 
-            if($request->has('state')) {
+            if($request->has('state') && trim($request->state)!='') {
                 $qry->where('state', $request->state);
             }
 
-            if($request->has('search')) {
-                $qry->join('field_values', 'field_values.subscriber_id', '=', 'subscribers.id')
-                    ->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('email', 'like', '%'.$request->search.'%')
-                    //check field values too
-                    ->orWhere('field_values.value', 'like', '%'.$request->search.'%');
+            if($request->has('search') && trim($request->search)!='') {
+                $qry->whereRaw("LOWER(name) LIKE '%" . strtolower($request->search) . "%' OR LOWER(email) LIKE '%" . strtolower($request->search) . "%'");
             }
 
             $qry->orderBy('id', 'desc');
@@ -163,7 +159,7 @@
                     $subscriber->refresh();
 
                     foreach($inputs as $field_name => $value) {
-                        $this->saveField($subscriber, $field_name, $value);
+                        if($value != null) $this->saveField($subscriber, $field_name, $value);
                     }
                 });
 
@@ -204,7 +200,7 @@
             $field = Field::where('title', $field_name)->first();
 
             //proceed if the attribute does not exist on the subscriber and the field exists
-            if(!isset($subscriber->$field_name) && $field!=null) {
+            if(!isset($subscriber->$field_name)) {
 
                 $params = ['field_id' => $field->id, 'subscriber_id' => $subscriber->id];
 
@@ -235,7 +231,41 @@
          * 
          * Changes the states of all specified subscribers to the specified state
          */
-        public function change_state(array $data): bool 
+        public function deleteSubscribers(array $data): bool 
+        {
+            $subscribers = $data['subscribers'];
+
+            try {
+
+                DB::transaction(function () use ($subscribers) {
+
+                    foreach($subscribers as $id) {
+                        $subscriber = Subscriber::find($id);
+
+                        if($subscriber != null) {
+                            $subscriber->delete();
+                        }
+                    }
+
+                });
+
+                return true;
+
+            } catch(Exception $e) {
+
+                return false;
+
+            }
+
+        }
+
+
+        /**
+         * Change State
+         * 
+         * Changes the states of all specified subscribers to the specified state
+         */
+        public function changeState(array $data): bool 
         {
             $subscribers = $data['subscribers'];
             $new_state = $data['state'];

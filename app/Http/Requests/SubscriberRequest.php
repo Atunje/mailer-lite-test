@@ -18,7 +18,7 @@ class SubscriberRequest extends APIFormRequest
 
         $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:subscribers',
+            'email' => 'required|email:dns,rfc|unique:subscribers',
             'state' => 'required|in:' . join(",", Subscriber::STATES),
         ];
 
@@ -34,7 +34,7 @@ class SubscriberRequest extends APIFormRequest
         if($subscriber_id != null) {
             $rules['email'] = [
                 'required',
-                'email',
+                'email:dns,rfc',
                 Rule::unique('subscribers')->ignore($subscriber_id)
             ];
         }
