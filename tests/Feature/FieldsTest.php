@@ -6,9 +6,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Field;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+
 
 class FieldsTest extends TestCase
 {
+    use DatabaseTransactions;
 
     public function test_the_api_returns_list_of_fields()
     {
@@ -79,21 +82,26 @@ class FieldsTest extends TestCase
 
     public function test_the_api_can_update_field() {
 
+        Field::factory()->count(5)->create();
+
         $field = Field::first();
+        $new_title = $this->faker->name;
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->post('/api/fields/' . $field->id . '/update', [
-            'title' => $field->title,
-            'type' => 'boolean'
+        $response = $this->actingAs($user)->put('/api/fields/' . $field->id . '/update', [
+            'title' => $new_title,
+            'type' => $field->type
         ]);
+
+        echo json_encode($response);
 
         $response->assertStatus(200)->assertJson([
             'status' => true,
         ]);
 
-        $field = Field::where('title', $field->title)->first();
+        $field = Field::find($field->id);
 
-        $this->assertEquals($field->type, 'boolean');
+        $this->assertEquals($field->title, $new_title);
 
     }
 }

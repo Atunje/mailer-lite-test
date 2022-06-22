@@ -31,7 +31,9 @@
             }
 
             if($request->has('search') && trim($request->search)!='') {
-                $qry->whereRaw("LOWER(name) LIKE '%" . strtolower($request->search) . "%' OR LOWER(email) LIKE '%" . strtolower($request->search) . "%'");
+                $qry->where(function($query) use ($request) {
+                    $query->whereRaw("LOWER(name) LIKE '%" . strtolower($request->search) . "%' OR LOWER(email) LIKE '%" . strtolower($request->search) . "%'");
+                });
             }
 
             $qry->orderBy('id', 'desc');

@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+
 
 class AuthTest extends TestCase
 {
-
-    private String $test_email = "nobelatunje001@gmail.com";
-    private String $test_password = "Password123.";
+    use DatabaseTransactions;
 
     /**
      * A basic test example.
@@ -26,19 +26,25 @@ class AuthTest extends TestCase
 
     public function test_the_api_can_register_new_user() {
 
+        $name = $this->faker->name;
+        $email = $this->faker->email;
+        $password = $this->faker->password;
+
         $response = $this->json('POST', '/api/auth/register', [
-            'name' => $this->faker->name,
-            'email'=>$this->test_email,
-            'password'=>$this->test_password
+            'name' => $name,
+            'email'=> $email,
+            'password'=> $password
         ]);
 
         $response->assertStatus(201)->assertJson([
             'status' => true,
         ]);
 
+        echo json_encode($response);
+
         $this->assertNotNull(
             User::where([
-                'email' => $this->test_email
+                'email' => $email
             ])->get()
         );
 
@@ -47,9 +53,19 @@ class AuthTest extends TestCase
 
     public function test_the_api_can_login_user() {
 
+        $name = $this->faker->name;
+        $email = $this->faker->email;
+        $password = $this->faker->password;
+
+        $response = $this->json('POST', '/api/auth/register', [
+            'name' => $name,
+            'email'=> $email,
+            'password'=> $password
+        ]);
+
         $response = $this->json('POST', '/api/auth/login', [
-            'email'=>$this->test_email,
-            'password'=>$this->test_password
+            'email'=>$email,
+            'password'=>$password
         ]);
 
         $response->assertStatus(200)->assertJson([
@@ -70,10 +86,20 @@ class AuthTest extends TestCase
 
     public function test_the_api_can_log_user_out() {
 
+        $name = $this->faker->name;
+        $email = $this->faker->email;
+        $password = $this->faker->password;
+
+        $response = $this->json('POST', '/api/auth/register', [
+            'name' => $name,
+            'email'=> $email,
+            'password'=> $password
+        ]);
+
         //login
         $response = $this->json('POST', '/api/auth/login', [
-            'email'=>$this->test_email,
-            'password'=>$this->test_password
+            'email'=>$email,
+            'password'=>$password
         ]);
 
         //get the access token

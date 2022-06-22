@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Validation\Rule;
+use App\Models\Field;
 
 class FieldRequest extends APIFormRequest
 {
@@ -15,7 +16,7 @@ class FieldRequest extends APIFormRequest
     {
         $rules = [
             'title' => 'required|string|max:255|unique:fields',
-            'type' => 'required|in:date,number,string,boolean',
+            'type' => 'required|in:' . join(",", Field::TYPES),
         ];
 
         //if field is to be updated, ignore the field in the unique rule

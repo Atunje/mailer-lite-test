@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix'=>'fields', 'middleware' => ['auth:sanctum']], function(){
     Route::get('/', [FieldController::class, 'show']);
     Route::post('create', [FieldController::class, 'create']);
-    Route::post('/{field}/update', [FieldController::class, 'update']);
+    Route::put('/{field}/update', [FieldController::class, 'update']);
 });
 
 Route::group(['prefix'=>'subscribers', 'middleware' => ['auth:sanctum']], function(){

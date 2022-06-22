@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Subscriber;
 
 return new class extends Migration
 {
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('email');
             $table->string('name');
-            $table->enum('state', ['active', 'unsubscribed', 'junk', 'bounced', 'unconfirmed']);
+            $table->enum('state', Subscriber::STATES);
             $table->timestamps();
             $table->softDeletes();
         });

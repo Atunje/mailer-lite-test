@@ -7,9 +7,13 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Subscriber;
 use App\Models\Field;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+
 
 class SubscribersTest extends TestCase
 {
+
+    use DatabaseTransactions;
 
     private function seed_db_table() 
     {
@@ -58,9 +62,18 @@ class SubscribersTest extends TestCase
         Field::factory()->boolean()->create();
     }
 
+
+    private function generateEmailWithValidDomain() {
+        //get random string
+        $str = substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(5/strlen($x)) )),1,5);
+        return $str . '@mailerlite.com';
+    }
+
     public function test_the_api_can_create_new_subscriber() 
     {
-        $subscriber = Subscriber::factory()->make()->toArray();
+        $subscriber = Subscriber::factory()->make([
+            'email' => $this->generateEmailWithValidDomain(),
+        ])->toArray();
 
         //create new fields
         $this->createFields();
@@ -88,6 +101,8 @@ class SubscribersTest extends TestCase
 
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/api/subscribers/create', $subscriber);
+
+        echo json_encode($response);
 
         $response->assertStatus(201)->assertJson([
             'status' => true,
@@ -124,24 +139,33 @@ class SubscribersTest extends TestCase
 
     public function test_the_api_can_update_subscriber() {
 
+        //create a subscribers
+        $this->seed_db_table();
+
         $subscriber = Subscriber::first();
         //add the new name for update
         $subscriber->name = $this->faker->name();
+        $subscriber->email = $this->generateEmailWithValidDomain();
 
         $user = User::factory()->create();
         $response = $this->actingAs($user)->put('/api/subscribers/' . $subscriber->id . '/update', $subscriber->toArray());
+
+        echo json_encode($response);
 
         $response->assertStatus(200)->assertJson([
             'status' => true,
         ]);
 
-        $update_subscriber = Subscriber::where('email', $subscriber->email)->first();
+        $update_subscriber = Subscriber::find($subscriber->id);
 
         $this->assertEquals($update_subscriber->name, $subscriber->name);
 
     }
 
     public function test_the_api_can_delete_subscriber() {
+
+        //create subscribers
+        $this->seed_db_table();
 
         $subscriber = Subscriber::first();
 
@@ -180,11 +204,9 @@ class SubscribersTest extends TestCase
         $response->assertStatus(200);
 
         $count = Subscriber::where('state', $state)
-                            ->join('field_values', 'field_values.subscriber_id', '=', 'subscribers.id')
-                            ->where('name', 'like', '%'.$srch_param.'%')
-                            ->orWhere('email','like', '%'.$srch_param.'%')
-                            ->orWhere('field_values.value', 'like', '%'.$srch_param.'%')
-                            ->count();
+                            ->where(function($query) use ($srch_param) {
+                                $query->whereRaw("LOWER(name) LIKE '%" . strtolower($srch_param) . "%' OR LOWER(email) LIKE '%" . strtolower($srch_param) . "%'");
+                            })->count();
 
         $result = $this->get_request_response($response);
         $total = $result['data']['pagination']['total'];
@@ -202,10 +224,12 @@ class SubscribersTest extends TestCase
         $new_state = 'junk';
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+        $response = $this->actingAs($user)->post('/api/subscribers/change-state', [
             'subscribers' => $ids,
             'state' => $new_state
         ]);
+
+        echo json_encode($response);
 
         $response->assertStatus(200)->assertJson([
             'status' => true,
@@ -228,7 +252,7 @@ class SubscribersTest extends TestCase
         $new_state = 'invalid';
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+        $response = $this->actingAs($user)->post('/api/subscribers/change-state', [
             'subscribers' => $ids,
             'state' => $new_state
         ]);
@@ -247,7 +271,7 @@ class SubscribersTest extends TestCase
         $new_state = 'junk';
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->patch('/api/subscribers/change-state', [
+        $response = $this->actingAs($user)->post('/api/subscribers/change-state', [
             'subscribers' => $ids,
             'state' => $new_state
         ]);

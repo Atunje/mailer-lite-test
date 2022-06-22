@@ -9,6 +9,8 @@ class Field extends Model
 {
     use HasFactory;
 
+    const TYPES = ['date', 'number', 'string', 'boolean'];
+
     /**
      * The attributes that are mass assignable.
      *
